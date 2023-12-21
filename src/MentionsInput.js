@@ -101,6 +101,8 @@ const propTypes = {
     PropTypes.element,
     PropTypes.arrayOf(PropTypes.element),
   ]).isRequired,
+
+  renderInput: PropTypes.elementType,
 }
 
 class MentionsInput extends React.Component {
@@ -183,7 +185,7 @@ class MentionsInput extends React.Component {
     )
   }
 
-  setContainerElement = (el) => {
+  setContainerElement = el => {
     this.containerElement = el
   }
 
@@ -229,28 +231,35 @@ class MentionsInput extends React.Component {
   }
 
   renderControl = () => {
-    let { singleLine, style } = this.props
+    let { singleLine, style, renderInput } = this.props
     let inputProps = this.getInputProps()
 
     return (
       <div {...style('control')}>
         {this.renderHighlighter()}
-        {singleLine
+        {renderInput
+          ? this.renderCustom(inputProps)
+          : singleLine
           ? this.renderInput(inputProps)
           : this.renderTextarea(inputProps)}
       </div>
     )
   }
 
-  renderInput = (props) => {
+  renderCustom = props => {
+    let { renderInput: RenderInput } = this.props
+    return <RenderInput ref={this.setInputRef} {...props} />
+  }
+
+  renderInput = props => {
     return <input type="text" ref={this.setInputRef} {...props} />
   }
 
-  renderTextarea = (props) => {
+  renderTextarea = props => {
     return <textarea ref={this.setInputRef} {...props} />
   }
 
-  setInputRef = (el) => {
+  setInputRef = el => {
     this.inputElement = el
     const { inputRef } = this.props
     if (typeof inputRef === 'function') {
@@ -260,7 +269,7 @@ class MentionsInput extends React.Component {
     }
   }
 
-  setSuggestionsElement = (el) => {
+  setSuggestionsElement = el => {
     this.suggestionsElement = el
   }
 
@@ -325,11 +334,11 @@ class MentionsInput extends React.Component {
     )
   }
 
-  setHighlighterElement = (el) => {
+  setHighlighterElement = el => {
     this.highlighterElement = el
   }
 
-  handleCaretPositionChange = (position) => {
+  handleCaretPositionChange = position => {
     this.setState({ caretPosition: position })
   }
 
@@ -499,7 +508,7 @@ class MentionsInput extends React.Component {
   }
 
   // Handle input element's change event
-  handleChange = (ev) => {
+  handleChange = ev => {
     isComposing = false
     if (isIE()) {
       // if we are inside iframe, we need to find activeElement within its contentDocument
@@ -517,23 +526,13 @@ class MentionsInput extends React.Component {
 
     let newPlainTextValue = ev.target.value
 
-    let selectionStartBefore = this.state.selectionStart;
-    if(selectionStartBefore == null) {
-      selectionStartBefore = ev.target.selectionStart;
-    }
-
-    let selectionEndBefore = this.state.selectionEnd;
-    if(selectionEndBefore == null) {
-      selectionEndBefore = ev.target.selectionEnd;
-    }
-
     // Derive the new value to set by applying the local change in the textarea's plain text
     let newValue = applyChangeToValue(
       value,
       newPlainTextValue,
       {
-        selectionStartBefore,
-        selectionEndBefore,
+        selectionStartBefore: this.state.selectionStart,
+        selectionEndBefore: this.state.selectionEnd,
         selectionEndAfter: ev.target.selectionEnd,
       },
       config
@@ -574,10 +573,6 @@ class MentionsInput extends React.Component {
 
     let mentions = getMentions(newValue, config)
 
-    if (ev.nativeEvent.isComposing && selectionStart === selectionEnd) {
-      this.updateMentionsQueries(this.inputElement.value, selectionStart)
-    }
-
     // Propagate change
     // let handleChange = this.getOnChange(this.props) || emptyFunction;
     let eventMock = { target: { value: newValue } }
@@ -586,7 +581,7 @@ class MentionsInput extends React.Component {
   }
 
   // Handle input element's select event
-  handleSelect = (ev) => {
+  handleSelect = ev => {
     // keep track of selection range / caret position
     this.setState({
       selectionStart: ev.target.selectionStart,
@@ -610,7 +605,7 @@ class MentionsInput extends React.Component {
     this.props.onSelect(ev)
   }
 
-  handleKeyDown = (ev) => {
+  handleKeyDown = ev => {
     // do not intercept key events if the suggestions overlay is not shown
     const suggestionsCount = countSuggestions(this.state.suggestions)
 
@@ -652,7 +647,7 @@ class MentionsInput extends React.Component {
     }
   }
 
-  shiftFocus = (delta) => {
+  shiftFocus = delta => {
     const suggestionsCount = countSuggestions(this.state.suggestions)
 
     this.setState({
@@ -668,7 +663,7 @@ class MentionsInput extends React.Component {
     const { result, queryInfo } = Object.values(suggestions).reduce(
       (acc, { results, queryInfo }) => [
         ...acc,
-        ...results.map((result) => ({ result, queryInfo })),
+        ...results.map(result => ({ result, queryInfo })),
       ],
       []
     )[focusIndex]
@@ -680,7 +675,7 @@ class MentionsInput extends React.Component {
     })
   }
 
-  handleBlur = (ev) => {
+  handleBlur = ev => {
     const clickedSuggestion = this._suggestionsMouseDown
     this._suggestionsMouseDown = false
 
@@ -700,11 +695,11 @@ class MentionsInput extends React.Component {
     this.props.onBlur(ev, clickedSuggestion)
   }
 
-  handleSuggestionsMouseDown = (ev) => {
+  handleSuggestionsMouseDown = ev => {
     this._suggestionsMouseDown = true
   }
 
-  handleSuggestionsMouseEnter = (focusIndex) => {
+  handleSuggestionsMouseEnter = focusIndex => {
     this.setState({
       focusIndex,
       scrollFocusedIntoView: false,
