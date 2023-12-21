@@ -169,7 +169,6 @@ SuggestionsOverlay.propTypes = {
 
 const styled = defaultStyle({
   zIndex: 1,
-  backgroundColor: 'white',
   marginTop: 14,
   minWidth: 100,
 

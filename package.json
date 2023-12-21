@@ -1,9 +1,9 @@
 {
-  "name": "react-mentions",
-  "version": "4.4.10",
+  "name": "react-meantions-extended",
+  "version": "4.4.30",
   "description": "React mentions input",
-  "main": "dist/react-mentions.cjs.js",
-  "module": "dist/react-mentions.esm.js",
+  "main": "dist/react-meantions-extended.cjs.js",
+  "module": "dist/react-meantions-extended.esm.js",
   "files": [
     "dist"
   ],
@@ -20,7 +20,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/signavio/react-mentions.git"
+    "url": "git+https://github.com/signavio/react-mentions.git"
   },
   "keywords": [
     "react",
